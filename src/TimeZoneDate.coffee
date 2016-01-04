@@ -1,7 +1,9 @@
 isNode = !Package? and module?.exports?
+isAMD = define?.amd?
+
 # Using a different variable name for moment to avoid re-declaring it in CoffeeScript and shadowing
 # the global variable.
-_moment = if isNode then require('moment-timezone') else moment
+_moment = if isNode || isAMD then require('moment-timezone') else moment
 
 # Extending Date ensures `instanceof Date` is true and all methods are inherited.
 class TimeZoneDate extends Date
@@ -89,7 +91,9 @@ class TimeZoneDate extends Date
   clone: -> new TimeZoneDate(@_moment, @_timeZone)
   equals: (other) -> @_moment.toString() == other.toString()
 
-if isNode
+if isAMD
+  define(-> return TimeZoneDate)
+else if isNode
   module.exports = TimeZoneDate
 else if window?
   window.TimeZoneDate = TimeZoneDate
